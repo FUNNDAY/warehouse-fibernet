@@ -236,6 +236,12 @@ class BarangController extends Controller
     {
         $img = "";
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $request->nama)));
+        
+        // --- TAMBAHAN LOGIKA HARGA ---
+        // Jika harga kosong, set jadi 0. 
+        // Jika ada isinya, hapus titik (.) jika formatnya ribuan (cth: 10.000 jadi 10000)
+        $harga = $request->harga == "" ? 0 : str_replace('.', '', $request->harga);
+        // -----------------------------
 
         //upload image
         if ($request->file('foto') == null) {
@@ -256,7 +262,7 @@ class BarangController extends Controller
             'barang_kode' => $request->kode,
             'barang_nama' => $request->nama,
             'barang_slug' => $slug,
-            'barang_harga' => $request->harga,
+            'barang_harga'   => $harga,
             'barang_stok' => 0,
 
         ]);
@@ -268,6 +274,10 @@ class BarangController extends Controller
     {
 
         $slug = strtolower(trim(preg_replace('/[^A-Za-z0-9-]+/', '-', $request->nama)));
+
+        // --- TAMBAHAN LOGIKA HARGA ---
+        $harga = $request->harga == "" ? 0 : str_replace('.', '', $request->harga);
+        // -----------------------------
 
         //check if image is uploaded
         if ($request->hasFile('foto')) {
@@ -300,7 +310,7 @@ class BarangController extends Controller
                 'barang_kode' => $request->kode,
                 'barang_nama' => $request->nama,
                 'barang_slug' => $slug,
-                'barang_harga' => $request->harga,
+                'barang_harga'   => $harga, // Pakai variable $harga
                 'barang_stok' => $request->stok,
             ]);
         }

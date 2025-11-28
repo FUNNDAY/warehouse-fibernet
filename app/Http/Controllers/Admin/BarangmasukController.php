@@ -48,6 +48,7 @@ class BarangmasukController extends Controller
                         "bm_id" => $row->bm_id,
                         "bm_kode" => $row->bm_kode,
                         "barang_kode" => $row->barang_kode,
+                        "code_sn" => $row->code_sn,
                         "customer_id" => $row->customer_id,
                         "bm_tanggal" => $row->bm_tanggal,
                         "bm_jumlah" => $row->bm_jumlah
@@ -91,6 +92,7 @@ class BarangmasukController extends Controller
             'bm_tanggal' => $request->tglmasuk,
             'bm_kode' => $request->bmkode,
             'barang_kode' => $request->barang,
+            'code_sn'     => $request->sn,
             'customer_id'   => $request->customer,
             'bm_jumlah'   => $request->jml,
         ]);
@@ -105,6 +107,7 @@ class BarangmasukController extends Controller
         $barangmasuk->update([
             'bm_tanggal' => $request->tglmasuk,
             'barang_kode' => $request->barang,
+            'code_sn'     => $request->sn,
             'customer_id'   => $request->customer,
             'bm_jumlah'   => $request->jml,
         ]);
