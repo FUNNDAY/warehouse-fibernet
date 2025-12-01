@@ -73,11 +73,17 @@
 
             getbarangbyidU(data.barang_kode);
 
+            $("input[name='tglmasukU']").val(data.bm_tanggal);
+            $('.datepicker-date').datepicker('update', data.bm_tanggal);
+
             $("input[name='tglmasukU").bootstrapdatepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true
             }).bootstrapdatepicker("update", data.bm_tanggal);
+
         }
+
+
 
         function hapus(data) {
             $("input[name='idbm']").val(data.bm_id);
@@ -88,7 +94,8 @@
             swal({
                 title: judul,
                 type: status,
-                confirmButtonText: "Iya."
+                timer: 1500,
+                showConfirmButton: false
             });
         }
     </script>

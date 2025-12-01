@@ -19,16 +19,18 @@
         <div class="col-lg-12">
             <div class="card">
                 <div class="card-header justify-content-between">
-                    <h3 class="card-title">Data</h3>
-                    @if ($hakTambah > 0)
-                        <div>
+                    <h3 class="card-title">Data Customer</h3>
+                    <div>
+                        {{-- Tombol Print (Ditambahkan) --}}
+                        <button class="btn btn-primary-light" onclick="printWindow()"><i class="fe fe-printer"></i>
+                            Print</button>
+
+                        @if ($hakTambah > 0)
                             <a class="modal-effect btn btn-primary-light" data-bs-effect="effect-super-scaled"
                                 data-bs-toggle="modal" href="#modaldemo8">Tambah Data
                                 <i class="fe fe-plus"></i></a>
-                            <button class="btn btn-primary-light" onclick="printWindow()"><i class="fe fe-printer"></i>
-                                Print</button>
-                        </div>
-                    @endif
+                        @endif
+                    </div>
                 </div>
                 <div class="card-body">
                     <div class="table-responsive">
@@ -135,7 +137,9 @@
             });
         });
 
+        // FUNGSI MEMBUKA WINDOW PRINT
         function printWindow() {
+            // Memanggil route print yang sudah kita buat sebelumnya
             window.open("{{ route('lap-customer.print') }}", '_blank');
         }
     </script>

@@ -71,6 +71,9 @@
 
             getbarangbyidU(data.barang_kode);
 
+            $("input[name='tglkeluarU']").val(data.bk_tanggal);
+            $('.datepicker-date').datepicker('update', data.bk_tanggal);
+
             $("input[name='tglkeluarU").bootstrapdatepicker({
                 format: 'yyyy-mm-dd',
                 autoclose: true
@@ -110,7 +113,7 @@
                 "info": true,
                 "order": [],
                 "scrollX": true,
-                "stateSave":true,
+                "stateSave": true,
                 "lengthMenu": [
                     [5, 10, 25, 50, 100],
                     [5, 10, 25, 50, 100]

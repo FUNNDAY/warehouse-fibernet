@@ -2,7 +2,6 @@
 <html lang="en">
 
 <?php
-
 use Carbon\Carbon;
 ?>
 
@@ -10,15 +9,14 @@ use Carbon\Carbon;
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="description" content="{{ $web->web_deskripsi }}">
-    <meta name="author" content="{{ $web->web_nama }}">
-    <meta name="keywords" content="">
+    <meta name="description" content="{{ $web->web_deskripsi ?? '' }}">
+    <meta name="author" content="{{ $web->web_nama ?? '' }}">
     <meta name="csrf-token" content="{{ csrf_token() }}" />
 
     <!-- FAVICON -->
-    @if ($web->web_logo == '' || $web->web_logo == 'default.png')
+    @if (isset($web) && ($web->web_logo == '' || $web->web_logo == 'default.png'))
         <link rel="shortcut icon" type="image/x-icon" href="{{ url('/assets/default/web/default.png') }}" />
-    @else
+    @elseif(isset($web))
         <link rel="shortcut icon" type="image/x-icon" href="{{ asset('storage/web/' . $web->web_logo) }}" />
     @endif
 
@@ -46,6 +44,9 @@ use Carbon\Carbon;
             padding-bottom: 12px;
             color: black;
             font-size: 12px;
+            background-color: #f2f2f2;
+            /* Warna latar abu-abu muda untuk header */
+            font-weight: bold;
         }
 
         #table1 td {
@@ -60,10 +61,8 @@ use Carbon\Carbon;
             font-weight: 600;
         }
 
-        .d-2 {
-            display: flex;
-            align-items: flex-start;
-            margin-top: 32px;
+        .text-center {
+            text-align: center;
         }
     </style>
 
@@ -72,49 +71,36 @@ use Carbon\Carbon;
 <body onload="window.print()">
 
     <center>
-        @if ($web->web_logo == '' || $web->web_logo == 'default.png')
-            <img src="{{ url('/assets/default/web/default.png') }}" width="80px" alt="">
-        @else
-            <img src="{{ asset('storage/web/' . $web->web_logo) }}" width="80px" alt="">
+        {{-- LOGO WEBSITE --}}
+        @if (isset($web) && ($web->web_logo == '' || $web->web_logo == 'default.png'))
+            <img src="{{ url('/assets/default/web/default.png') }}" width="80px" alt="Logo">
+        @elseif(isset($web))
+            <img src="{{ asset('storage/web/' . $web->web_logo) }}" width="80px" alt="Logo">
         @endif
     </center>
 
     <center>
-        <h1 class="font-medium">Laporan Barang Masuk</h1>
-        @if ($tglawal == '')
-            <h4 class="font-medium">Semua Tanggal</h4>
-        @else
-            <h4 class="font-medium">{{ Carbon::parse($tglawal)->translatedFormat('d F Y') }} -
-                {{ Carbon::parse($tglakhir)->translatedFormat('d F Y') }}</h4>
-        @endif
+        <h1 class="font-medium" style="margin-bottom: 5px;">Laporan Data Customer</h1>
+        <h4 class="font-medium" style="margin-top: 0;">Semua Data</h4>
     </center>
-
 
     <table border="1" id="table1">
         <thead>
             <tr>
-                <th align="center" width="1%">NO</th>
-                <th>TGL MASUK</th>
-                <th>KODE BRG MASUK</th>
-                <th>KODE BARANG</th>
-                <th>CODE SN</th>
-                <th>CUSTOMER</th>
-                <th>BARANG</th>
-                <th>JML MASUK</th>
+                <th width="5%" class="text-center">NO</th>
+                <th>NAMA CUSTOMER</th>
+                <th>NO TELEPON</th>
+                <th>ALAMAT</th>
             </tr>
         </thead>
         <tbody>
             @php $no=1; @endphp
             @foreach ($data as $d)
                 <tr>
-                    <td align="center">{{ $no++ }}</td>
-                    <td>{{ Carbon::parse($d->bm_tanggal)->translatedFormat('d F Y') }}</td>
-                    <td>{{ $d->bm_kode }}</td>
-                    <td>{{ $d->barang_kode }}</td>
-                    <td>{{ $d->code_sn }}</td>
+                    <td class="text-center">{{ $no++ }}</td>
                     <td>{{ $d->customer_nama }}</td>
-                    <td>{{ $d->barang_nama }}</td>
-                    <td align="center">{{ $d->bm_jumlah }}</td>
+                    <td>{{ $d->customer_notelp }}</td>
+                    <td>{{ $d->customer_alamat }}</td>
                 </tr>
             @endforeach
         </tbody>

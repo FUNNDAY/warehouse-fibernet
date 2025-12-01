@@ -17,7 +17,9 @@
                         <div class="form-group">
                             <label for="tglmasuk" class="form-label">Tanggal Masuk <span
                                     class="text-danger">*</span></label>
-                            <input type="text" name="tglmasuk" class="form-control datepicker-date" placeholder="">
+                            <input type="text" name="tglmasuk" class="form-control datepicker-date"
+                                value="{{ date('Y-m-d') }}" readonly style="background-color: #fff; cursor: pointer;"
+                                placeholder="Pilih Tanggal">
                         </div>
                         <div class="form-group">
                             <label for="customer" class="form-label">Pilih Customer <span
@@ -97,6 +99,56 @@
 
 @section('formTambahJS')
     <script>
+        $(document).ready(function() {
+
+            $(document).keydown(function(e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                    e.preventDefault(); // Cegah Save Page browser
+
+                    // Cek Modal Tambah
+                    if ($('#modaldemo8').hasClass('show')) {
+                        checkForm();
+                    }
+                    // Cek Modal Edit
+                    else if ($('#Umodaldemo8').hasClass('show')) {
+                        checkFormU();
+                    }
+                }
+            });
+            
+            // 1. SETUP DATEPICKER
+            $('.datepicker-date').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                container: '#modaldemo8' // Agar kalender muncul di atas modal
+            });
+
+            // 2. QoL: HAPUS 0 OTOMATIS
+            $("input[name='jml']").focus(function() {
+                if ($(this).val() === '0') $(this).val('');
+            });
+            $("input[name='jml']").blur(function() {
+                if ($(this).val() === '') $(this).val('0');
+            });
+
+            // 3. ENTER PINDAH KOLOM
+            $('#modaldemo8').on('keydown', 'input, select', function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    var focusable = $('#modaldemo8').find('input, select, button').filter(
+                        ':visible:not([disabled])');
+                    var index = focusable.index($(this));
+                    if (index < focusable.length - 1) {
+                        focusable.eq(index + 1).focus();
+                    } else {
+                        checkForm();
+                    }
+                }
+            });
+
+        });
+
         $('input[name="kdbarang"]').keypress(function(event) {
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if (keycode == '13') {
@@ -132,6 +184,7 @@
                         $("#nmbarang").val(data[0].barang_nama);
                         $("#satuan").val(data[0].satuan_nama);
                         $("#jenis").val(data[0].jenisbarang_nama);
+                        $("input[name='sn']").focus();
                     } else {
                         $("#loaderkd").addClass('d-none');
                         $("#status").val("false");
@@ -174,7 +227,6 @@
             } else {
                 submitForm();
             }
-
         }
 
         function submitForm() {
@@ -185,27 +237,39 @@
             const sn = $("input[name='sn']").val();
             const jml = $("input[name='jml']").val();
 
+            var fd = new FormData();
+            fd.append('bmkode', bmkode);
+            fd.append('tglmasuk', tglmasuk);
+            fd.append('barang', kdbarang);
+            fd.append('sn', sn);
+            fd.append('customer', customer);
+            fd.append('jml', jml);
+
             $.ajax({
                 type: 'POST',
                 url: "{{ route('barang-masuk.store') }}",
-                enctype: 'multipart/form-data',
-                data: {
-                    bmkode: bmkode,
-                    tglmasuk: tglmasuk,
-                    barang: kdbarang,
-                    sn: sn,
-                    customer: customer,
-                    jml: jml
-                },
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                data: fd,
                 success: function(data) {
-                    $('#modaldemo8').modal('toggle');
+                    $('#modaldemo8').modal('hide'); // Paksa tutup modal
                     swal({
                         title: "Berhasil ditambah!",
-                        type: "success"
+                        type: "success",
+                        timer: 1500,
+                        showConfirmButton: false
                     });
                     table.ajax.reload(null, false);
                     reset();
-
+                },
+                error: function(data) {
+                    setLoading(false);
+                    swal({
+                        title: "Gagal",
+                        text: "Terjadi kesalahan",
+                        type: "error"
+                    });
                 }
             });
         }
@@ -219,8 +283,9 @@
 
         function reset() {
             resetValid();
+
+            // 1. Reset Field
             $("input[name='bmkode']").val('');
-            $("input[name='tglmasuk']").val('');
             $("input[name='kdbarang']").val('');
             $("select[name='customer']").val('');
             $("input[name='sn']").val('');
@@ -229,7 +294,26 @@
             $("#satuan").val('');
             $("#jenis").val('');
             $("#status").val('false');
+
+            // 2. Reset Tanggal ke Hari Ini
+            var now = new Date();
+            var day = ("0" + now.getDate()).slice(-2);
+            var month = ("0" + (now.getMonth() + 1)).slice(-2);
+            var today = now.getFullYear() + "-" + (month) + "-" + (day);
+
+            // Isi Value & Update Plugin
+            $('input[name="tglmasuk"]').val(today);
+
+            try {
+                $('.datepicker-date').datepicker('update', today);
+            } catch (e) {
+                console.log(e);
+            }
+
+            // 3. Matikan Loading
             setLoading(false);
+
+            // --- BAGIAN FOKUS DI SINI SUDAH DIHAPUS AGAR KALENDER TIDAK MUNCUL ---
         }
 
         function setLoading(bool) {

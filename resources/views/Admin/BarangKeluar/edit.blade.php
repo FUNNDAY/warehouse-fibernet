@@ -1,21 +1,25 @@
-<!-- MODAL EDIT -->
 <div class="modal fade" data-bs-backdrop="static" id="Umodaldemo8">
     <div class="modal-dialog modal-lg modal-dialog-centered" role="document">
         <div class="modal-content modal-content-demo">
             <div class="modal-header">
-                <h6 class="modal-title">Ubah Barang Keluar</h6><button aria-label="Close" onclick="resetU()" class="btn-close" data-bs-dismiss="modal"><span aria-hidden="true">&times;</span></button>
+                <h6 class="modal-title">Ubah Barang Keluar</h6>
+                <button aria-label="Close" onclick="resetU()" class="btn-close" data-bs-dismiss="modal"><span
+                        aria-hidden="true">&times;</span></button>
             </div>
             <div class="modal-body">
                 <div class="row">
                     <div class="col-md-6">
                         <input type="hidden" name="idbkU">
                         <div class="form-group">
-                            <label for="bkkodeU" class="form-label">Kode Barang Keluar <span class="text-danger">*</span></label>
+                            <label for="bkkodeU" class="form-label">Kode Barang Keluar <span
+                                    class="text-danger">*</span></label>
                             <input type="text" name="bkkodeU" readonly class="form-control" placeholder="">
                         </div>
                         <div class="form-group">
-                            <label for="tglkeluarU" class="form-label">Tanggal Keluar <span class="text-danger">*</span></label>
-                            <input type="text" name="tglkeluarU" class="form-control datepicker-date" placeholder="">
+                            <label for="tglkeluarU" class="form-label">Tanggal Keluar <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" name="tglkeluarU" class="form-control datepicker-date" readonly
+                                style="background-color: #fff; cursor: pointer;" placeholder="Pilih Tanggal">
                         </div>
                         <div class="form-group">
                             <label for="tujuanU" class="form-label">Tujuan</label>
@@ -31,9 +35,12 @@
                                 </div>
                             </label>
                             <div class="input-group">
-                                <input type="text" class="form-control" autocomplete="off" name="kdbarangU" placeholder="">
-                                <button class="btn btn-primary-light" onclick="searchBarangU()" type="button"><i class="fe fe-search"></i></button>
-                                <button class="btn btn-success-light" onclick="modalBarangU()" type="button"><i class="fe fe-box"></i></button>
+                                <input type="text" class="form-control" autocomplete="off" name="kdbarangU"
+                                    placeholder="">
+                                <button class="btn btn-primary-light" onclick="searchBarangU()" type="button"><i
+                                        class="fe fe-search"></i></button>
+                                <button class="btn btn-success-light" onclick="modalBarangU()" type="button"><i
+                                        class="fe fe-box"></i></button>
                             </div>
                         </div>
                         <div class="form-group">
@@ -55,12 +62,14 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="jmlU" class="form-label">Jumlah Keluar <span class="text-danger">*</span></label>
-                            <input type="text" name="jmlU" class="form-control" oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1').replace(/^0[^.]/, '0');" placeholder="">
+                            <label for="jmlU" class="form-label">Jumlah Keluar <span
+                                    class="text-danger">*</span></label>
+                            <input type="text" name="jmlU" class="form-control"
+                                oninput="this.value = this.value.replace(/[^0-9.]/g, '').replace(/(\..*?)\..*/g, '$1').replace(/^0[^.]/, '0');"
+                                placeholder="">
                         </div>
                     </div>
                 </div>
-
             </div>
             <div class="modal-footer">
                 <button class="btn btn-success d-none" id="btnLoaderU" type="button" disabled="">
@@ -69,150 +78,240 @@
                 </button>
                 <a href="javascript:void(0)" onclick="checkFormU()" id="btnSimpanU" class="btn btn-success">Simpan
                     Perubahan <i class="fe fe-check"></i></a>
-                <a href="javascript:void(0)" class="btn btn-light" onclick="resetU()" data-bs-dismiss="modal">Batal <i class="fe fe-x"></i></a>
+                <a href="javascript:void(0)" class="btn btn-light" onclick="resetU()" data-bs-dismiss="modal">Batal
+                    <i class="fe fe-x"></i></a>
             </div>
         </div>
     </div>
 </div>
 
 @section('formEditJS')
-<script>
-    $('input[name="kdbarangU"]').keypress(function(event) {
-        var keycode = (event.keyCode ? event.keyCode : event.which);
-        if (keycode == '13') {
-            getbarangbyidU($('input[name="kdbarangU"]').val());
-        }
-    });
+    <script>
+        $(document).ready(function() {
+            // 1. SETUP DATEPICKER EDIT (Container arahkan ke Modal Edit)
+            $('.datepicker-date').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                container: '#Umodaldemo8'
+            });
 
-    function modalBarangU() {
-        $('#modalBarang').modal('show');
-        $('#Umodaldemo8').addClass('d-none');
-        $('input[name="param"]').val('ubah');
-        resetValidU();
-        table2.ajax.reload();
-    }
+            // 2. HAPUS 0 OTOMATIS (JUMLAH)
+            $("input[name='jmlU']").focus(function() {
+                if ($(this).val() === '0') $(this).val('');
+            });
+            $("input[name='jmlU']").blur(function() {
+                if ($(this).val() === '') $(this).val('0');
+            });
 
-    function searchBarangU() {
-        getbarangbyidU($('input[name="kdbarangU"]').val());
-        resetValidU();
-    }
-
-    function getbarangbyidU(id) {
-        $("#loaderkdU").removeClass('d-none');
-        $.ajax({
-            type: 'GET',
-            url: "{{ url('admin/barang/getbarang') }}/" + id,
-            processData: false,
-            contentType: false,
-            dataType: 'json',
-            success: function(data) {
-                if (data.length > 0) {
-                    $("#loaderkdU").addClass('d-none');
-                    $("#statusU").val("true");
-                    $("#nmbarangU").val(data[0].barang_nama);
-                    $("#satuanU").val(data[0].satuan_nama);
-                    $("#jenisU").val(data[0].jenisbarang_nama);
-                } else {
-                    $("#loaderkdU").addClass('d-none');
-                    $("#statusU").val("false");
-                    $("#nmbarangU").val('');
-                    $("#satuanU").val('');
-                    $("#jenisU").val('');
+            // 3. ENTER PINDAH KOLOM
+            $('#Umodaldemo8').on('keydown', 'input, select', function(e) {
+                if (e.key === "Enter") {
+                    e.preventDefault();
+                    var focusable = $('#Umodaldemo8').find('input, select, button').filter(
+                        ':visible:not([disabled])');
+                    var index = focusable.index($(this));
+                    if (index < focusable.length - 1) {
+                        focusable.eq(index + 1).focus();
+                    } else {
+                        checkFormU();
+                    }
                 }
+            });
+
+            // 4. CTRL+S KHUSUS EDIT
+            $(document).keydown(function(e) {
+                if ((e.ctrlKey || e.metaKey) && (e.key === 's' || e.key === 'S')) {
+                    e.preventDefault();
+                    if ($('#Umodaldemo8').hasClass('show')) {
+                        checkFormU();
+                    }
+                }
+            });
+        });
+
+        // --- FUNGSI UPDATE (Agar Data Masuk Saat Klik Edit) ---
+        function update(data) {
+            resetU(); // Bersihkan dulu
+
+            // Isi ID & Kode
+            $("input[name='idbkU']").val(data.bk_id);
+            $("input[name='bkkodeU']").val(data.bk_kode);
+
+            // Isi Tanggal & Update Kalender (Penting)
+            // Pastikan nama kolom 'bk_tanggal' sesuai dengan controller
+            var tanggal = data.bk_tanggal;
+            $("input[name='tglkeluarU']").val(tanggal);
+            try {
+                $('.datepicker-date').datepicker('update', tanggal);
+            } catch (e) {}
+
+            // Isi Data Lain
+            $("input[name='tujuanU']").val(data.bk_tujuan);
+            $("input[name='jmlU']").val(data.bk_jumlah);
+
+            // Isi Data Barang (Readonly)
+            $("input[name='kdbarangU']").val(data.barang_kode);
+            $("#nmbarangU").val(data.barang_nama);
+            $("#satuanU").val(data.satuan_nama);
+            $("#jenisU").val(data.jenisbarang_nama);
+
+            $("#statusU").val("true");
+        }
+        // ------------------------------------------------------
+
+        $('input[name="kdbarangU"]').keypress(function(event) {
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if (keycode == '13') {
+                getbarangbyidU($('input[name="kdbarangU"]').val());
             }
         });
-    }
 
-    function checkFormU() {
-        const tglkeluar = $("input[name='tglkeluarU']").val();
-        const status = $("#statusU").val();
-        const kdbarang = $("input[name='kdbarangU").val();
-        const tujuan = $("input[name='tujuanU']").val();
-        const jml = $("input[name='jmlU']").val();
-        setLoadingU(true);
-        resetValidU();
-
-        if (tglkeluar == "") {
-            validasi('Tanggal Keluar wajib di isi!', 'warning');
-            $("input[name='tglkeluarU']").addClass('is-invalid');
-            setLoading(Ufalse);
-            return false;
-        } else if (status == "false" || kdbarang == '') {
-            validasi('Barang wajib di pilih!', 'warning');
-            $("input[name='kdbarangU']").addClass('is-invalid');
-            setLoadingU(false);
-            return false;
-        }  else if (jml == "" || jml == "0") {
-            validasi('Jumlah Masuk wajib di isi!', 'warning');
-            $("input[name='jmlU']").addClass('is-invalid');
-            setLoadingU(false);
-            return false;
-        } else {
-            submitFormU();
+        function modalBarangU() {
+            $('#modalBarang').modal('show');
+            $('#Umodaldemo8').addClass('d-none');
+            $('input[name="param"]').val('ubah');
+            resetValidU();
+            table2.ajax.reload();
         }
-    }
 
-    function submitFormU() {
-        const id = $("input[name='idbkU']").val();
-        const bkkode = $("input[name='bkkodeU']").val();
-        const tglkeluar = $("input[name='tglkeluarU']").val();
-        const kdbarang = $("input[name='kdbarangU']").val();
-        const tujuan = $("input[name='tujuanU']").val();
-        const jml = $("input[name='jmlU']").val();
+        function searchBarangU() {
+            getbarangbyidU($('input[name="kdbarangU"]').val());
+            resetValidU();
+        }
 
-        $.ajax({
-            type: 'POST',
-            url: "{{ url('admin/barang-keluar/proses_ubah') }}/" + id,
-            enctype: 'multipart/form-data',
-            data: {
-                bkkode: bkkode,
-                tglkeluar: tglkeluar,
-                barang: kdbarang,
-                tujuan: tujuan,
-                jml: jml
-            },
-            success: function(data) {
-                swal({
-                    title: "Berhasil diubah!",
-                    type: "success"
-                });
-                $('#Umodaldemo8').modal('toggle');
-                table.ajax.reload(null, false);
-                resetU();
+        function getbarangbyidU(id) {
+            $("#loaderkdU").removeClass('d-none');
+            $.ajax({
+                type: 'GET',
+                url: "{{ url('admin/barang/getbarang') }}/" + id,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                success: function(data) {
+                    if (data.length > 0) {
+                        $("#loaderkdU").addClass('d-none');
+                        $("#statusU").val("true");
+                        $("#nmbarangU").val(data[0].barang_nama);
+                        $("#satuanU").val(data[0].satuan_nama);
+                        $("#jenisU").val(data[0].jenisbarang_nama);
+                    } else {
+                        $("#loaderkdU").addClass('d-none');
+                        $("#statusU").val("false");
+                        $("#nmbarangU").val('');
+                        $("#satuanU").val('');
+                        $("#jenisU").val('');
+                    }
+                }
+            });
+        }
+
+        function checkFormU() {
+            const tglkeluar = $("input[name='tglkeluarU']").val();
+            const status = $("#statusU").val();
+            const kdbarang = $("input[name='kdbarangU").val();
+            const tujuan = $("input[name='tujuanU']").val();
+            const jml = $("input[name='jmlU']").val();
+            setLoadingU(true);
+            resetValidU();
+
+            if (tglkeluar == "") {
+                validasi('Tanggal Keluar wajib di isi!', 'warning');
+                $("input[name='tglkeluarU']").addClass('is-invalid');
+                setLoadingU(false);
+                return false;
+            } else if (status == "false" || kdbarang == '') {
+                validasi('Barang wajib di pilih!', 'warning');
+                $("input[name='kdbarangU']").addClass('is-invalid');
+                setLoadingU(false);
+                return false;
+            } else if (jml == "" || jml == "0") {
+                validasi('Jumlah Masuk wajib di isi!', 'warning');
+                $("input[name='jmlU']").addClass('is-invalid');
+                setLoadingU(false);
+                return false;
+            } else {
+                submitFormU();
             }
-        });
-    }
-
-    function resetValidU() {
-        $("input[name='tglkeluarU']").removeClass('is-invalid');
-        $("input[name='kdbarangU']").removeClass('is-invalid');
-        $("input[name='tujuanU']").removeClass('is-invalid');
-        $("input[name='jmlU']").removeClass('is-invalid');
-    };
-
-    function resetU() {
-        resetValidU();
-        $("input[name='idbkU']").val('');
-        $("input[name='bkkodeU']").val('');
-        $("input[name='tglkeluarU']").val('');
-        $("input[name='kdbarangU']").val('');
-        $("input[name='tujuanU']").val('');
-        $("input[name='jmlU']").val('0');
-        $("#nmbarangU").val('');
-        $("#satuanU").val('');
-        $("#jenisU").val('');
-        $("#statusU").val('false');
-        setLoadingU(false);
-    }
-
-    function setLoadingU(bool) {
-        if (bool == true) {
-            $('#btnLoaderU').removeClass('d-none');
-            $('#btnSimpanU').addClass('d-none');
-        } else {
-            $('#btnSimpanU').removeClass('d-none');
-            $('#btnLoaderU').addClass('d-none');
         }
-    }
-</script>
+
+        function submitFormU() {
+            const id = $("input[name='idbkU']").val();
+            const bkkode = $("input[name='bkkodeU']").val();
+            const tglkeluar = $("input[name='tglkeluarU']").val();
+            const kdbarang = $("input[name='kdbarangU']").val();
+            const tujuan = $("input[name='tujuanU']").val();
+            const jml = $("input[name='jmlU']").val();
+
+            var fd = new FormData();
+            fd.append('bkkode', bkkode);
+            fd.append('tglkeluar', tglkeluar);
+            fd.append('barang', kdbarang);
+            fd.append('tujuan', tujuan);
+            fd.append('jml', jml);
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ url('admin/barang-keluar/proses_ubah') }}/" + id,
+                processData: false,
+                contentType: false,
+                dataType: 'json',
+                data: fd,
+                success: function(data) {
+                    $('#Umodaldemo8').modal('hide'); // Gunakan HIDE
+                    swal({
+                        title: "Berhasil diubah!",
+                        type: "success",
+                        timer: 1500,
+                        showConfirmButton: false
+                    });
+                    table.ajax.reload(null, false);
+                    resetU();
+                },
+                error: function(data) {
+                    setLoadingU(false);
+                    swal({
+                        title: "Gagal",
+                        text: "Terjadi kesalahan",
+                        type: "error"
+                    });
+                }
+            });
+        }
+
+        function resetValidU() {
+            $("input[name='tglkeluarU']").removeClass('is-invalid');
+            $("input[name='kdbarangU']").removeClass('is-invalid');
+            $("input[name='tujuanU']").removeClass('is-invalid');
+            $("input[name='jmlU']").removeClass('is-invalid');
+        };
+
+        function resetU() {
+            resetValidU();
+            $("input[name='idbkU']").val('');
+            $("input[name='bkkodeU']").val('');
+
+            // Reset Tanggal (Kosongkan agar nanti diisi update)
+            $("input[name='tglkeluarU']").val('');
+
+            $("input[name='kdbarangU']").val('');
+            $("input[name='tujuanU']").val('');
+            $("input[name='jmlU']").val('0');
+            $("#nmbarangU").val('');
+            $("#satuanU").val('');
+            $("#jenisU").val('');
+            $("#statusU").val('false');
+            setLoadingU(false);
+        }
+
+        function setLoadingU(bool) {
+            if (bool == true) {
+                $('#btnLoaderU').removeClass('d-none');
+                $('#btnSimpanU').addClass('d-none');
+            } else {
+                $('#btnSimpanU').removeClass('d-none');
+                $('#btnLoaderU').addClass('d-none');
+            }
+        }
+    </script>
 @endsection

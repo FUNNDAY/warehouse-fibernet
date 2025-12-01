@@ -18,7 +18,8 @@
                         <div class="form-group">
                             <label for="tglmasukU" class="form-label">Tanggal Masuk <span
                                     class="text-danger">*</span></label>
-                            <input type="text" name="tglmasukU" class="form-control datepicker-date" placeholder="">
+                            <input type="text" name="tglmasukU" class="form-control datepicker-date" readonly
+                                style="background-color: #fff; cursor: pointer;" placeholder="Pilih Tanggal">
                         </div>
                         <div class="form-group">
                             <label for="customerU" class="form-label">Pilih Customer <span
@@ -96,6 +97,7 @@
 
 @section('formEditJS')
     <script>
+
         $('input[name="kdbarangU"]').keypress(function(event) {
             var keycode = (event.keyCode ? event.keyCode : event.which);
             if (keycode == '13') {
@@ -200,7 +202,9 @@
                 success: function(data) {
                     swal({
                         title: "Berhasil diubah!",
-                        type: "success"
+                        type: "success",
+                        timer: 1500,
+                        showConfirmButton: false
                     });
                     $('#Umodaldemo8').modal('toggle');
                     table.ajax.reload(null, false);

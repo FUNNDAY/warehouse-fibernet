@@ -12,12 +12,15 @@ use App\Http\Controllers\Admin\LapStokBarangController;
 use App\Http\Controllers\Admin\LoginController;
 use App\Http\Controllers\Admin\MerkController;
 use App\Http\Controllers\Admin\SatuanController;
+use App\Http\Controllers\Admin\LapListUserController;
+use App\Http\Controllers\Admin\LapCustomerController;
 use App\Http\Controllers\Master\AksesController;
 use App\Http\Controllers\Master\AppreanceController;
 use App\Http\Controllers\Master\MenuController;
 use App\Http\Controllers\Master\RoleController;
 use App\Http\Controllers\Master\UserController;
 use Illuminate\Support\Facades\Route;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -36,6 +39,8 @@ Route::middleware(['preventBackHistory'])->group(function () {
     Route::post('/admin/proseslogin', [LoginController::class, 'proseslogin'])->middleware('useractive');
     Route::get('/admin/logout', [LoginController::class, 'logout']);
 });
+
+Route::get('/laporan/user/print', [LapListUserController::class, 'print'])->name('lap-user.print');
 
 // admin
 Route::group(['middleware' => 'userlogin'], function () {
@@ -96,7 +101,9 @@ Route::group(['middleware' => 'userlogin'], function () {
         Route::post('/admin/customer/proses_tambah/', [CustomerController::class, 'proses_tambah'])->name('customer.store');
         Route::post('/admin/customer/proses_ubah/{customer}', [CustomerController::class, 'proses_ubah']);
         Route::post('/admin/customer/proses_hapus/{customer}', [CustomerController::class, 'proses_hapus']);
+        Route::get('/laporan/customer/print', [LapCustomerController::class, 'print'])->name('lap-customer.print');
     });
+
 
     Route::middleware(['checkRoleUser:/barang-masuk,submenu'])->group(function () {
         // Barang Masuk

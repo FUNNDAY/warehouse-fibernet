@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Yajra\DataTables\Facades\DataTables;
+use App\Models\Admin\WebModel;
 
 class UserController extends Controller
 {
@@ -67,6 +68,19 @@ class UserController extends Controller
                 })
                 ->rawColumns(['action', 'img', 'role'])->make(true);
         }
+    }
+
+    public function print()
+    {
+        $data["title"] = "Laporan Data User";
+        $data['web'] = WebModel::first();
+
+        // Ambil data user join dengan role
+        $data['data'] = UserModel::leftJoin('tbl_role', 'tbl_role.role_id', '=', 'tbl_user.role_id')
+            ->orderBy('user_id', 'DESC')
+            ->get();
+
+        return view('Master.User.print', $data);
     }
 
     public function store(Request $request)
